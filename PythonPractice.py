@@ -41,7 +41,7 @@ def popular_name(data):
     for name in common:
         combined_rank = int(data['Rank'][data['Male name']== name] ) + int(data['Rank'][data['Female name']== name])
         d.update({combined_rank:name})
-        print(f"Name: {name},\t Rank: {combined_rank}")
+        #print(f"Name: {name},\t Rank: {combined_rank}")
 
     name = d[min(d.keys())]
 
