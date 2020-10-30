@@ -30,3 +30,19 @@ def largest_product(a):
 
 print(f"Maximum Product: {largest_product(a)['product']} \nAddress: {largest_product(a)['address']}")
 
+data = pd.read_csv("popular_names.csv")
+
+def popular_name(data):
+
+    males = set(data['Male name'])
+    females = set(data['Female name'])
+    common = males.intersection(females)
+    d = dict()
+    for name in common:
+        combined_rank = int(data['Rank'][data['Male name']== name] ) + int(data['Rank'][data['Female name']== name])
+        d.update({combined_rank:name})
+        print(f"Name: {name},\t Rank: {combined_rank}")
+
+    name = d[min(d.keys())]
+
+    return name
