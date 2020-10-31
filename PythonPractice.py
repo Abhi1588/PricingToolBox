@@ -1,11 +1,11 @@
 import pandas as pd
 import numpy as np
 import matplotlib as mat
-
-### 1. Generate a random 20x20 grid of two digit natural numbers. Find the largest product of four diagnoally
-# adjacent numbers.
-
-a = np.random.randint(10,99,(20,20))
+"""
+Problem 1:  Generate a random 20x20 grid of two digit natural numbers. Find the largest product of four 
+            diagonally adjacent numbers.
+"""
+a = np.random.randint(10, 99, (20, 20))
 
 def largest_product(a):
     prd = 0
@@ -30,6 +30,13 @@ def largest_product(a):
 
 print(f"Maximum Product: {largest_product(a)['product']} \nAddress: {largest_product(a)['address']}")
 
+"""
+Probelm 2:  The Social Security administration has this neat data by year of what names are most popular 
+            by gender for born that year in the USA. The popular name list for the year 1990 is given in the 
+            website <url>. Write a python program to identify the names that appear in the list of popular
+            names of both genders. 
+"""
+
 data = pd.read_csv("popular_names.csv")
 
 def popular_name(data):
@@ -46,3 +53,65 @@ def popular_name(data):
     name = d[min(d.keys())]
 
     return name
+
+print(f"Most Popular name {popular_name(data)}")
+
+"""
+Problem 3: Invert matrix using first principle
+"""
+
+#b = np.random.randint(10, 99, (3, 3))
+
+def matrix_invert_first_principles(b):
+
+    if b.shape[0] != b.shape[1]:
+        return print("Please input a square matrix")
+
+    b = b.astype("float")
+    c = b.copy()
+    I = np.eye(b.shape[0], b.shape[1])
+
+    for i in np.arange(0, b.shape[0]):
+        I[i] = I[i, :] / b[i, i]
+        b[i] = b[i, :] / b[i, i]
+        for j in np.arange(0, b.shape[0]):
+            if j == i:
+                pass
+            else:
+                I[j] = I[j] - b[j, i] * I[i]
+                b[j] = b[j] - b[j, i] * b[i]
+
+    def check_result(result, actual):
+
+        res = np.matmul(result, actual).astype("int")
+        #print(res)
+        if (np.eye(result.shape[0], result.shape[1]) == res).all():
+            ok = True
+            d_res = None
+        else:
+            ok = False
+            d_res = {"input": actual}
+
+        return ok, d_res
+
+    if not check_result(I, c)[0]:
+        return (f"Something not ok. Input {check_result(I, c)[1]['input']}")
+
+    return I
+
+
+# b = np.array(  [[35, 40, 82],
+#                 [68, 86, 29],
+#                 [38, 53, 13]])
+
+print(f"Result Problem 3: {matrix_invert_first_principles(b)}")
+
+
+
+
+
+
+
+
+
+
