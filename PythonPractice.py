@@ -148,15 +148,15 @@ def compute_value(func,a,b,theo_vaule,N=1000):
 
     result = np.array(r)
     diff_arr = result - theo_vaule
+    result_dict = {"result":result}
+    result_dict.update(confidence_interval(diff_arr))
 
-    diff_dict = confidence_interval(diff_arr)
-
-    return diff_dict
+    return result_dict
 
 
 
 temp = []
-l_N = [10, 50, 100, 500, 1000, 5000, 10000]
+l_N = [10, 50, 100, 500, 1000, 5000, 10000, 50000, 1000000]
 
 for N in l_N:
     de = compute_value(func0,0,1,0.5,N)
