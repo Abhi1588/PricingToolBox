@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import scipy.stats as stat
 import matplotlib as mat
 """
 Problem 1:  Generate a random 20x20 grid of two digit natural numbers. Find the largest product of four 
@@ -106,11 +107,60 @@ def matrix_invert_first_principles(b):
 
 print(f"Result Problem 3: {matrix_invert_first_principles(b)}")
 
+"""
+Problem 5:  Numerical Integration using Monte Carlo simulation.
+
+"""
+
+def integrate_func_monte_carlo(func,a,b,N=1000):
+    x = np.random.uniform(a, b, N)
+    res = func(x)
+    return ((b-a)/N)*sum(res)
+
+def func0(x):
+    return x
+
+def func_a(x):
+    return np.exp(-x**2)
+
+def func_b(x):
+    return 1/(1 + x**2)
+
+def func_c(x):
+    return np.sqrt(x**4 + 1)
+
+def confidence_interval(arr, p = 0.95):
+
+    u = arr.mean()
+    sd = arr.std()
+    z = stat.norm.ppf(1-(1-p)/2)
+
+    ci = z*(sd/np.sqrt(len(arr)))
+    d = {"mean": u,
+         "interval":ci}
+    return d
+
+def compute_value(func,a,b,theo_vaule,N=1000):
+    print(N)
+    r = []
+    for _ in np.arange(0,100):
+        r.append(integrate_func_monte_carlo(func, a, b, N))
+
+    result = np.array(r)
+    diff_arr = result - theo_vaule
+
+    diff_dict = confidence_interval(diff_arr)
+
+    return diff_dict
 
 
 
+temp = []
+l_N = [10, 50, 100, 500, 1000, 5000, 10000]
 
-
+for N in l_N:
+    de = compute_value(func0,0,1,0.5,N)
+    temp.append(de)
 
 
 
