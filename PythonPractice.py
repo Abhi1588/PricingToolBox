@@ -156,8 +156,8 @@ def compute_value(func,a,b,theo_vaule,N=1000):
 l_N = [10, 50, 100, 500, 1000, 5000, 10000, 50000, 1000000]
 #solutions :
 
-solution_a = [compute_value(func_a,0,1,0.5,N) for N in l_N]
-solution_b = [compute_value(func_b,1,2,0.5,N) for N in l_N]
-solution_c = [compute_value(func_c,0,1,0.5,N) for N in l_N]
+solution_a = [compute_value(func_a, 0, 1, 0.5, N) for N in l_N]
+solution_b = [compute_value(func_b, 1, 2, 0.5, N) for N in l_N]
+solution_c = [compute_value(func_c, 0, 1, 0.5, N) for N in l_N]
 
 
