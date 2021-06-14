@@ -143,6 +143,8 @@ fabric.properties
 stopwords/
 wordnet/
 ModelCalibration/
+__pycache__/
+
 #Some Files
 The Concepts & Practice of Mathematical Finance, Mark Joshi.pdf
 
