@@ -4,6 +4,7 @@ import pandas as pd
 import math
 from scipy.stats import norm
 import matplotlib.pyplot as plt
+import B3_VanillaOptionsinBlackScholesWorld as B3
 
 
 
@@ -26,17 +27,12 @@ class MonteCarloOptionPricer:
     def zerocouponbond(self, rate, maturity):
         return math.exp(-rate * maturity)
 
-    def option_pricer(self, payoffObj, strike, paths = "All"):
+    def option_pricer_GBM(self, payoffObj, strike, paths = "All"):
         if paths == "All":
             payoff = payoffObj(self.assetPrice[:, 1], strike)
         else:
             payoff = payoffObj(self.assetPrice[:paths, 1], strike)
         self.optionPrice = (payoff*self.discountFactor).mean()
-
-
-
-
-
 
 
 def call_payoff(prices, strike):
@@ -54,17 +50,11 @@ noOfSim = 10000
 
 callMC = MonteCarloOptionPricer()
 callMC.simulateAssetPrices_GBM(spot,rate,maturity,vol,noOfSim,dividend)
-callMC.option_pricer(call_payoff,strike)
+callMC.option_pricer_GBM(call_payoff,strike)
 print(callMC.optionPrice)
 
 
-def europeanCallOptionPrice(spot,strike,maturity,rate,dividend,vol):
-    d1 = (math.log(spot/strike) + (rate -dividend + 0.5*vol**2)*(maturity))/(vol*math.sqrt(maturity))
-    d2 = d1 - vol*math.sqrt(maturity)
-    Nd1 = norm.cdf(d1)
-    Nd2 = norm.cdf(d2)
-    return spot*math.exp(-dividend*maturity)*Nd1 - strike*math.exp(-rate*maturity)*Nd2
 
-call = europeanCallOptionPrice(spot,strike,maturity,rate,dividend,vol)
+call = B3.europeanCallOptionPrice(spot,strike,maturity,rate,dividend,vol)
 
 print(call)
