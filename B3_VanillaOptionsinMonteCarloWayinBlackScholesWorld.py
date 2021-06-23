@@ -13,6 +13,7 @@ class MonteCarloOptionPricer:
         self.discountFactor = None
         self.optionPrice = None
         self.payOffPaths = None
+        self._dt = None
 
     def simulateAssetPrices_GBM(self, spot, rate, maturity, vol, noofSimulations, dividend=None):
         rand = np.random.standard_normal(noofSimulations)
@@ -33,6 +34,31 @@ class MonteCarloOptionPricer:
             payoff = payoffObj(self.assetPrice[:, 1], strike)
         else:
             payoff = payoffObj(self.assetPrice[:paths, 1], strike)
+        self.optionPrice = (payoff * self.discountFactor).mean()
+        self.payOffPaths = payoff
+
+    def _assetPrice(self, currentprice, rate, vol, dividend):
+        rand = np.random.standard_normal(currentprice.shape[0])
+        return currentprice + (rate-dividend)*currentprice*self._dt + currentprice*vol*np.sqrt(self._dt)*rand
+
+
+    def simulateAssetPrice_Euler(self,spot, rate, maturity, vol, noofSimulations, steps, dividend=None):
+        self._dt = maturity/steps
+        if dividend is None:
+            dividend = 0
+        assetPaths = np.zeros((noofSimulations, steps))
+        assetPaths[:, 0] = spot
+        for i in np.arange(1, steps):
+            assetPaths[:, i] = self._assetPrice(assetPaths[:, i-1], rate, vol, dividend)
+        self.assetPaths = assetPaths
+        self.discountFactor = self.zerocouponbond(rate, maturity)
+
+    def option_pricer_euler(self, payoffObj, strike, paths="All"):
+        last = self.assetPaths.shape[1] - 1
+        if paths == "All":
+            payoff = payoffObj(self.assetPaths[:, last], strike)
+        else:
+            payoff = payoffObj(self.assetPrice[:paths, last], strike)
         self.optionPrice = (payoff * self.discountFactor).mean()
         self.payOffPaths = payoff
 
@@ -67,50 +93,66 @@ strike = 100
 maturity = 1
 rate = 0.02
 dividend = 0
-vol = 0.001
-noOfSim = 15000
+vol = 0.01
+noOfSim = 30000
 
 callMC = MonteCarloOptionPricer()
 callMC.simulateAssetPrices_GBM(spot, rate, maturity, vol, noOfSim, dividend)
 callMC.option_pricer_GBM(call_payoff, strike)
-#print(callMC.optionPrice)
+print("GBM: {}".format( callMC.optionPrice))
 #print(call)
 
 
 call = B3.europeanCallOptionPrice(spot, strike, maturity, rate, dividend, vol)
-put = B3.europeanPutOptionPrice(spot, strike, maturity, rate, dividend, vol)
-
+#put = B3.europeanPutOptionPrice(spot, strike, maturity, rate, dividend, vol)
+print("BS : {}".format(call))
 def straddle(prices, strike):
     call = call_payoff(prices, strike)
     put = put_payoff(prices, strike)
     straddle = call + put
     return straddle
 
-strad = MonteCarloOptionPricer()
-strad.simulateAssetPrices_GBM(spot, rate, maturity, vol, noOfSim, dividend)
-strad.option_pricer_GBM(straddle,strike)
-print(strad.optionPrice)
-print(call+put)
+#strad = MonteCarloOptionPricer()
+#strad.simulateAssetPrices_GBM(spot, rate, maturity, vol, noOfSim, dividend)
+#strad.option_pricer_GBM(straddle,strike)
+#print(strad.optionPrice)
+#print(call+put)
 
-strikes = [strike + 5*i  for i in np.arange(0, 10)]
-strikes.extend([strike - 5*i  for i in np.arange(0, 10)])
-strikes.sort()
 
-vols = [vol + 0.001*i for i in np.arange(0, 10)]
-maturities = [maturity + 0.5*i for i in np.arange(0, 10)]
-rates = [rate + 0.01*i for i in np.arange(0,10)]
+callEU = MonteCarloOptionPricer()
+callEU.simulateAssetPrice_Euler(spot, rate, maturity, vol, noOfSim, 250)
+callEU.option_pricer_euler(call_payoff,strike)
+print("Euler : {}".format( callEU.optionPrice))
 
-callMC = MonteCarloOptionPricer()
-callMC.simulateAssetPrices_GBM(spot, rate, maturity, vol, noOfSim, dividend)
-prices = []
-for strike in strikes:
-    callMC.option_pricer_GBM(call_payoff, strike)
-    prices.append(callMC.optionPrice)
+# x = [i+1 for i in range(0, test.assetPaths.shape[1])]
+# fig, ax = plt.subplots()
+# ax.plot(x, test.assetPaths.transpose())#, label="Asset Price")
+# ax.set_xlabel('TimeStep')
+# ax.set_ylabel('Asset Price')
+# ax.set_title("Prices")
+# #ax.legend()
+# plt.show()
 
-fig, ax = plt.subplots()
-ax.plot(strikes, prices, label="Call Option Price")
-ax.set_xlabel('Strikes')
-ax.set_ylabel('Option Price')
-ax.set_title("Prices Test")
-ax.legend()
-plt.show()
+def main():
+    strikes = [strike + 5*i  for i in np.arange(0, 10)]
+    strikes.extend([strike - 5*i  for i in np.arange(0, 10)])
+    strikes.sort()
+
+    vols = [vol + 0.001*i for i in np.arange(0, 10)]
+    maturities = [maturity + 0.5*i for i in np.arange(0, 10)]
+    rates = [rate + 0.01*i for i in np.arange(0,10)]
+
+    callMC = MonteCarloOptionPricer()
+    callMC.simulateAssetPrices_GBM(spot, rate, maturity, vol, noOfSim, dividend)
+    prices = []
+    for strike in strikes:
+        callMC.option_pricer_GBM(call_payoff, strike)
+        prices.append(callMC.optionPrice)
+
+    fig, ax = plt.subplots()
+    ax.plot(strikes, prices, label="Call Option Price")
+    ax.set_xlabel('Strikes')
+    ax.set_ylabel('Option Price')
+    ax.set_title("Prices Test")
+    #ax.legend()
+    plt.show()
