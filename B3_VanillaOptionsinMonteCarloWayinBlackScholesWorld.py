@@ -1,4 +1,4 @@
-import numpy
+
 import numpy as np
 import pandas as pd
 import math
@@ -37,11 +37,11 @@ class MonteCarloOptionPricer:
         self.payOffPaths = payoff
 
 def call_payoff(prices, strike):
-    return numpy.maximum((prices - strike), 0)
+    return np.maximum((prices - strike), 0)
 
 
 def put_payoff(prices, strike):
-    return numpy.maximum((strike - prices), 0)
+    return np.maximum((strike - prices), 0)
 
 
 def forward_payoff(prices, strike):
@@ -91,3 +91,26 @@ strad.simulateAssetPrices_GBM(spot, rate, maturity, vol, noOfSim, dividend)
 strad.option_pricer_GBM(straddle,strike)
 print(strad.optionPrice)
 print(call+put)
+
+strikes = [strike + 5*i  for i in np.arange(0, 10)]
+strikes.extend([strike - 5*i  for i in np.arange(0, 10)])
+strikes.sort()
+
+vols = [vol + 0.001*i for i in np.arange(0, 10)]
+maturities = [maturity + 0.5*i for i in np.arange(0, 10)]
+rates = [rate + 0.01*i for i in np.arange(0,10)]
+
+callMC = MonteCarloOptionPricer()
+callMC.simulateAssetPrices_GBM(spot, rate, maturity, vol, noOfSim, dividend)
+prices = []
+for strike in strikes:
+    callMC.option_pricer_GBM(call_payoff, strike)
+    prices.append(callMC.optionPrice)
+
+fig, ax = plt.subplots()
+ax.plot(strikes, prices, label="Call Option Price")
+ax.set_xlabel('Strikes')
+ax.set_ylabel('Option Price')
+ax.set_title("Prices Test")
+ax.legend()
+plt.show()
