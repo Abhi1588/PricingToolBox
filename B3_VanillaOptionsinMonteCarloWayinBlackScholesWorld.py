@@ -12,6 +12,7 @@ class MonteCarloOptionPricer:
         self.assetPrice = None
         self.discountFactor = None
         self.optionPrice = None
+        self.payOffPaths = None
 
     def simulateAssetPrices_GBM(self, spot, rate, maturity, vol, noofSimulations, dividend=None):
         rand = np.random.standard_normal(noofSimulations)
@@ -33,7 +34,7 @@ class MonteCarloOptionPricer:
         else:
             payoff = payoffObj(self.assetPrice[:paths, 1], strike)
         self.optionPrice = (payoff * self.discountFactor).mean()
-
+        self.payOffPaths = payoff
 
 def call_payoff(prices, strike):
     return numpy.maximum((prices - strike), 0)
@@ -66,14 +67,27 @@ strike = 100
 maturity = 1
 rate = 0.02
 dividend = 0
-vol = .10
-noOfSim = 10000
+vol = 0.001
+noOfSim = 15000
 
 callMC = MonteCarloOptionPricer()
 callMC.simulateAssetPrices_GBM(spot, rate, maturity, vol, noOfSim, dividend)
 callMC.option_pricer_GBM(call_payoff, strike)
-print(callMC.optionPrice)
+#print(callMC.optionPrice)
+#print(call)
+
 
 call = B3.europeanCallOptionPrice(spot, strike, maturity, rate, dividend, vol)
+put = B3.europeanPutOptionPrice(spot, strike, maturity, rate, dividend, vol)
 
-print(call)
+def straddle(prices, strike):
+    call = call_payoff(prices, strike)
+    put = put_payoff(prices, strike)
+    straddle = call + put
+    return straddle
+
+strad = MonteCarloOptionPricer()
+strad.simulateAssetPrices_GBM(spot, rate, maturity, vol, noOfSim, dividend)
+strad.option_pricer_GBM(straddle,strike)
+print(strad.optionPrice)
+print(call+put)
