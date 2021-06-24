@@ -88,52 +88,23 @@ def digitalPut_Payoff(prices, strike):
         return 0
 
 
-spot = 100
-strike = 100
-maturity = 1
-rate = 0.02
-dividend = 0
-vol = 0.01
-noOfSim = 30000
-
-callMC = MonteCarloOptionPricer()
-callMC.simulateAssetPrices_GBM(spot, rate, maturity, vol, noOfSim, dividend)
-callMC.option_pricer_GBM(call_payoff, strike)
-print("GBM: {}".format( callMC.optionPrice))
-#print(call)
-
-
-call = B3.europeanCallOptionPrice(spot, strike, maturity, rate, dividend, vol)
-#put = B3.europeanPutOptionPrice(spot, strike, maturity, rate, dividend, vol)
-print("BS : {}".format(call))
 def straddle(prices, strike):
     call = call_payoff(prices, strike)
     put = put_payoff(prices, strike)
     straddle = call + put
     return straddle
 
-#strad = MonteCarloOptionPricer()
-#strad.simulateAssetPrices_GBM(spot, rate, maturity, vol, noOfSim, dividend)
-#strad.option_pricer_GBM(straddle,strike)
-#print(strad.optionPrice)
-#print(call+put)
 
-
-callEU = MonteCarloOptionPricer()
-callEU.simulateAssetPrice_Euler(spot, rate, maturity, vol, noOfSim, 250)
-callEU.option_pricer_euler(call_payoff,strike)
-print("Euler : {}".format( callEU.optionPrice))
-
-# x = [i+1 for i in range(0, test.assetPaths.shape[1])]
-# fig, ax = plt.subplots()
-# ax.plot(x, test.assetPaths.transpose())#, label="Asset Price")
-# ax.set_xlabel('TimeStep')
-# ax.set_ylabel('Asset Price')
-# ax.set_title("Prices")
-# #ax.legend()
-# plt.show()
 
 def main():
+    spot = 100
+    strike = 100
+    maturity = 1
+    rate = 0.02
+    dividend = 0
+    vol = 0.01
+    noOfSim = 30000
+
     strikes = [strike + 5*i  for i in np.arange(0, 10)]
     strikes.extend([strike - 5*i  for i in np.arange(0, 10)])
     strikes.sort()
@@ -156,3 +127,34 @@ def main():
     ax.set_title("Prices Test")
     #ax.legend()
     plt.show()
+
+
+    callMC = MonteCarloOptionPricer()
+    callMC.simulateAssetPrices_GBM(spot, rate, maturity, vol, noOfSim, dividend)
+    callMC.option_pricer_GBM(call_payoff, strike)
+    print("GBM: {}".format(callMC.optionPrice))
+    # print(call)
+
+    call = B3.europeanCallOptionPrice(spot, strike, maturity, rate, dividend, vol)
+    # put = B3.europeanPutOptionPrice(spot, strike, maturity, rate, dividend, vol)
+    print("BS : {}".format(call))
+
+    # strad = MonteCarloOptionPricer()
+    # strad.simulateAssetPrices_GBM(spot, rate, maturity, vol, noOfSim, dividend)
+    # strad.option_pricer_GBM(straddle,strike)
+    # print(strad.optionPrice)
+    # print(call+put)
+
+    callEU = MonteCarloOptionPricer()
+    callEU.simulateAssetPrice_Euler(spot, rate, maturity, vol, noOfSim, 250)
+    callEU.option_pricer_euler(call_payoff, strike)
+    print("Euler : {}".format(callEU.optionPrice))
+
+    # x = [i+1 for i in range(0, test.assetPaths.shape[1])]
+    # fig, ax = plt.subplots()
+    # ax.plot(x, test.assetPaths.transpose())#, label="Asset Price")
+    # ax.set_xlabel('TimeStep')
+    # ax.set_ylabel('Asset Price')
+    # ax.set_title("Prices")
+    # #ax.legend()
+    # plt.show()
