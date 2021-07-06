@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import norm
 
-def delta_call(spot,strike,maturity,rate,vol,dividend=None):
+def delta_call_BSM(spot,strike,maturity,rate,vol,dividend=None):
     if dividend is None:
         dividend = 0
     d1 = (np.log(spot/strike) + (rate - dividend + 0.5*vol**2)*(maturity))/(vol*np.sqrt(maturity))
@@ -15,14 +15,43 @@ def delta_call(spot,strike,maturity,rate,vol,dividend=None):
 def _dN(x):
     return np.exp((-x**2)/2)/(np.sqrt(2*np.pi))
 
-def gamma_call(spot,strike,maturity,rate,vol,dividend=None):
+def gamma_call_BSM(spot,strike,maturity,rate,vol,dividend=None):
     if dividend is None:
         dividend = 0
     d1 = (np.log(spot/strike) + (rate - dividend + 0.5*vol**2)*(maturity))/(vol*np.sqrt(maturity))
     dN = _dN(d1)
-    return dN/(spot*vol*np.sqrt(maturity))
+    return (dN/(spot*vol*np.sqrt(maturity)))*np.exp(-dividend*maturity)
 
+def vega_call_BSM(spot,strike,maturity,rate,vol,dividend=None):
+    if dividend is None:
+        dividend = 0
+    d1 = (np.log(spot/strike) + (rate - dividend + 0.5*vol**2)*(maturity))/(vol*np.sqrt(maturity))
+    dN = _dN(d1)
+    return np.exp(-dividend*maturity)*spot*np.sqrt(maturity)*dN
 
+def theta_call_BSM(spot,strike,maturity,rate,vol,dividend=None):
+    if dividend is None:
+        dividend = 0
+    d1 = (np.log(spot/strike) + (rate - dividend + 0.5*vol**2)*(maturity))/(vol*np.sqrt(maturity))
+    d2 = d1 - vol*np.sqrt(maturity)
+    dN = _dN(d1)
+    return -np.exp(-dividend*maturity)*spot*dN*vol/(2*np.sqrt(maturity)) + \
+           dividend*np.exp(-dividend*maturity)*spot*norm.cdf(d1) - \
+           rate*strike*np.exp(-rate*maturity)*norm.cdf(d2)
 
+def rho_call_BSM(spot,strike,maturity,rate,vol,dividend=None):
+    if dividend is None:
+        dividend = 0
+    d1 = (np.log(spot/strike) + (rate - dividend + 0.5*vol**2)*(maturity))/(vol*np.sqrt(maturity))
+    d2 = d1 - vol*np.sqrt(maturity)
+    return strike*maturity*np.exp(-rate*maturity)*norm.cdf(d2)
+
+def delta_call_finite_difference(spot,strike,maturity,rate,vol,dividend=None):
+    if dividend is None:
+        dividend = 0
+    e = 0.001*spot
+    call_up = B3BS.europeanCallOptionPrice(spot + e, strike, maturity, rate, dividend, vol)
+    call = B3BS.europeanCallOptionPrice(spot, strike, maturity, rate, dividend, vol)
+    return (call_up-call)/e
 
 
