@@ -11,11 +11,20 @@ rate = 0.02
 dividend = 0
 vol = .1
 
+# region Delta Test
 delta = B4Greeks.delta_call_BSM(spot, strike, maturity, rate, vol)
 delta_fd = B4Greeks.delta_call_finite_difference(spot, strike, maturity, rate, vol)
-
-print(delta, delta_fd)
+print("Formula Delta: {:.5f} \nFinite Diff Delta: {:.5f}".format(delta, delta_fd))
 print("Diff %: {:.4f} %".format(abs(delta - delta_fd)*100/abs(delta)))
+
+spots = [spot + i for i in range(-25, 26, 1)]
+deltas = [B4Greeks.delta_call_BSM(spot, strike, maturity, rate, vol) for spot in spots]
+
+print("="*10)
+# endregion
+
+
+
 
 gamma = B4Greeks.gamma_call_BSM(spot, strike, maturity, rate, vol)
 gamma_fd = B4Greeks.gamma_call_finite_difference(spot, strike, maturity, rate, vol)
