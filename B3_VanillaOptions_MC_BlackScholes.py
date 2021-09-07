@@ -1,4 +1,3 @@
-
 import numpy as np
 import pandas as pd
 import math
@@ -39,17 +38,17 @@ class MonteCarloOptionPricer:
 
     def _assetPrice(self, currentprice, rate, vol, dividend):
         rand = np.random.standard_normal(currentprice.shape[0])
-        return currentprice + (rate-dividend)*currentprice*self._dt + currentprice*vol*np.sqrt(self._dt)*rand
+        return currentprice + (rate - dividend) * currentprice * self._dt + currentprice * vol * np.sqrt(
+            self._dt) * rand
 
-
-    def simulateAssetPrice_Euler(self,spot, rate, maturity, vol, noofSimulations, steps, dividend=None):
-        self._dt = maturity/steps
+    def simulateAssetPrice_Euler(self, spot, rate, maturity, vol, noofSimulations, steps, dividend=None):
+        self._dt = maturity / steps
         if dividend is None:
             dividend = 0
         assetPaths = np.zeros((noofSimulations, steps))
         assetPaths[:, 0] = spot
         for i in np.arange(1, steps):
-            assetPaths[:, i] = self._assetPrice(assetPaths[:, i-1], rate, vol, dividend)
+            assetPaths[:, i] = self._assetPrice(assetPaths[:, i - 1], rate, vol, dividend)
         self.assetPaths = assetPaths
         self.discountFactor = self.zerocouponbond(rate, maturity)
 
@@ -61,6 +60,7 @@ class MonteCarloOptionPricer:
             payoff = payoffObj(self.assetPrice[:paths, last], strike)
         self.optionPrice = (payoff * self.discountFactor).mean()
         self.payOffPaths = payoff
+
 
 def call_payoff(prices, strike):
     return np.maximum((prices - strike), 0)
@@ -95,7 +95,6 @@ def straddle(prices, strike):
     return straddle
 
 
-
 def main():
     spot = 100
     strike = 100
@@ -105,13 +104,13 @@ def main():
     vol = 0.01
     noOfSim = 30000
 
-    strikes = [strike + 5*i  for i in np.arange(0, 10)]
-    strikes.extend([strike - 5*i  for i in np.arange(0, 10)])
+    strikes = [strike + 5 * i for i in np.arange(0, 10)]
+    strikes.extend([strike - 5 * i for i in np.arange(0, 10)])
     strikes.sort()
 
-    vols = [vol + 0.001*i for i in np.arange(0, 10)]
-    maturities = [maturity + 0.5*i for i in np.arange(0, 10)]
-    rates = [rate + 0.01*i for i in np.arange(0,10)]
+    vols = [vol + 0.001 * i for i in np.arange(0, 10)]
+    maturities = [maturity + 0.5 * i for i in np.arange(0, 10)]
+    rates = [rate + 0.01 * i for i in np.arange(0, 10)]
 
     callMC = MonteCarloOptionPricer()
     callMC.simulateAssetPrices_GBM(spot, rate, maturity, vol, noOfSim, dividend)
@@ -125,9 +124,8 @@ def main():
     ax.set_xlabel('Strikes')
     ax.set_ylabel('Option Price')
     ax.set_title("Prices Test")
-    #ax.legend()
+    # ax.legend()
     plt.show()
-
 
     callMC = MonteCarloOptionPricer()
     callMC.simulateAssetPrices_GBM(spot, rate, maturity, vol, noOfSim, dividend)

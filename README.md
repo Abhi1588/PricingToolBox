@@ -12,6 +12,8 @@ Project B3 Implmentation Completed. Some testing done.
 Will Continue to add more tests as mentioned in the text book. 
 Some clean up of the code is required.
 
+Special thanks to JetBrains (https://jb.gg/OpenSource) for providing support for the development of this project.
+
 
 
 
