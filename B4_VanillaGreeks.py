@@ -89,4 +89,22 @@ def theta_call_finite_difference(spot, strike, maturity, rate, vol, dividend=Non
     call = B3BS.europeanCallOptionPrice(spot, strike, maturity, rate, dividend, vol)
     return (call_up-call)/e
 
+#region MonteCarlo Greeks
+def delta_call_MonteCarlo(spot, strike, rate, maturity, vol, noOfSim = 1000, dividend = None):
+    total_Delta = 0
+    total_Delta2 = 0
+    callMC = B3MC.MonteCarloOptionPricer()
+    callMC.simulateAssetPrices_GBM(spot, rate, maturity, vol, noOfSim, dividend)
+    for _ in range(0,callMC.assetPrice.shape[0]):
+        if callMC.assetPrice[ _, 1] > strike:
+            I = 1
+        else:
+            I = 0
+        delta = callMC.zerocouponbond(rate, maturity)*callMC.assetPrice[ _, 1]/spot*I
+        total_Delta += delta
+        total_Delta2 += delta**2
+    return total_Delta/noOfSim, total_Delta2/noOfSim
 
+
+
+#endregion
